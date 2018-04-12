@@ -1,28 +1,41 @@
 #ifndef MIPS_DECODE
 #define MIPS_DECODE
 
+/*
+  Dependant includes:
+  #include <stdint.h>
+*/
+
+enum instruction_type {
+    IMMEDIATE,
+    JUMP,
+    REGISTER
+};
+
 // Immediate
 struct i_instruction {
-    unsigned int op  :  6; // operation code
-    unsigned int rs  :  5; // source register specifier
-    unsigned int rt  :  5; // target (source/destination) or branch condition
-    unsigned int imm : 16; // immediate, branch displacement or address
+    uint8_t op;   // operation code
+    uint8_t rs;   // source register specifier
+    uint8_t rt;   // target (source/destination) or branch condition
+    uint16_t imm; // immediate, branch displacement or address
 };
 
 // Jump
 struct j_instruction {
-    unsigned int op     :  6; // operation code
-    unsigned int target : 26; // 26-bit jump target address
+    uint8_t op;      // operation code
+    uint32_t target; // 26-bit jump target address
 };
 
 // Register
 struct r_instruction {
-    unsigned int op    : 6; // operation code
-    unsigned int rs    : 5; // source register specifier
-    unsigned int rt    : 5; // target (source/destination) or branch condition
-    unsigned int rd    : 5; // destination register specifier
-    unsigned int shamt : 5; // shift amount
-    unsigned int funct : 6; // function field
+    uint8_t op;    // operation code
+    uint8_t rs;    // source register specifier
+    uint8_t rt;    // target (source/destination) or branch condition
+    uint8_t rd;    // destination register specifier
+    uint8_t shamt; // shift amount
+    uint8_t funct; // function field
 };
+
+enum instruction_type mips_decode_instruction_type(uint32_t instruction);
 
 #endif // MIPS_DECODE
