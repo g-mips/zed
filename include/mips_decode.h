@@ -78,6 +78,6 @@ struct r_instruction {
 };
 
 enum instruction_type mips_decode_instruction_type(uint32_t instruction);
-struct r_instruction mips_decode_new_r_instruction(uint32_t raw_inst);
+struct r_instruction mips_decode_new_r_instruction(uint32_t raw_inst, uint32_t address);
 
 #endif // MIPS_DECODE
