@@ -6,7 +6,7 @@
 #include "mips_decode.h"
 #include "mips_ops.h"
 
-char * _mips_decode_get_reg_str(uint8_t reg)
+static char * _mips_decode_get_reg_str(uint8_t reg)
 {
     switch (reg)
     {
@@ -80,7 +80,7 @@ char * _mips_decode_get_reg_str(uint8_t reg)
 }
 #define GET_REG_STR(reg) _mips_decode_get_reg_str(reg)
 
-char * _mips_decode_get_op_str(uint8_t op)
+static char * _mips_decode_get_op_str(uint8_t op)
 {
     switch (op)
     {
