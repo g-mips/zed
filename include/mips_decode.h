@@ -39,6 +39,64 @@
 #define IMM_GET(inst) GET_BITS(inst, IMM_BITS, IMM_OFFSET)
 #define TARGET_GET(inst) GET_BITS(inst, TARGET_BITS, TARGET_OFFSET)
 
+// Register Zero
+#define R0_STR "$zero"
+
+// Assembler Temporary
+#define R1_STR "$at"
+
+// Values
+#define R2_STR "$v0"
+#define R3_STR "$v1"
+
+// Arguments
+#define R4_STR "$a0"
+#define R5_STR "$a1"
+#define R6_STR "$a2"
+#define R7_STR "$a3"
+
+// Temporaries
+#define R8_STR "$t0"
+#define R9_STR "$t1"
+#define R10_STR "$t2"
+#define R11_STR "$t3"
+#define R12_STR "$t4"
+#define R13_STR "$t5"
+#define R14_STR "$t6"
+#define R15_STR "$t7"
+
+// Saved Values
+#define R16_STR "$s0"
+#define R17_STR "$s1"
+#define R18_STR "$s2"
+#define R19_STR "$s3"
+#define R20_STR "$s4"
+#define R21_STR "$s5"
+#define R22_STR "$s6"
+#define R23_STR "$s7"
+
+// Temporaries
+#define R24_STR "$t8"
+#define R25_STR "$t9"
+
+// Reserved for use by the interrupt/trap handler
+#define R26_STR "$k0"
+#define R27_STR "$k1"
+
+// Global pointer
+#define R28_STR "$gp"
+
+// Stack pointer
+#define R29_STR "$sp"
+
+// Saved value / Frame pointer
+#define R30_STR "$s8/$fp"
+
+// Return Address
+#define R31_STR "$ra"
+
+#define MAX_INST_LENGTH 1024
+
 enum instruction_type {
     IMMEDIATE,
     JUMP,
@@ -47,37 +105,17 @@ enum instruction_type {
     UNSUPPORTED
 };
 
-// Immediate
-struct i_instruction {
-    uint8_t op;   // operation code
-    uint8_t rs;   // source register specifier
-    uint8_t rt;   // target (source/destination) or branch condition
-    uint16_t imm; // immediate, branch displacement or address
-
+struct mips_inst {
     uint32_t address;
+    uint32_t raw_inst;
+
+    uint8_t opcode;
+
+    char inst_format[MAX_INST_LENGTH];
+
+    bool valid;
 };
 
-// Jump
-struct j_instruction {
-    uint8_t op;      // operation code
-    uint32_t target; // 26-bit jump target address
-
-    uint32_t address;
-};
-
-// Register
-struct r_instruction {
-    uint8_t op;    // operation code
-    uint8_t rs;    // source register specifier
-    uint8_t rt;    // target (source/destination) or branch condition
-    uint8_t rd;    // destination register specifier
-    uint8_t shamt; // shift amount
-    uint8_t funct; // function field
-
-    uint32_t address;
-};
-
-enum instruction_type mips_decode_instruction_type(uint32_t instruction);
-struct r_instruction mips_decode_new_r_instruction(uint32_t raw_inst, uint32_t address);
+struct mips_inst mips_decode_mips_inst_new(uint32_t raw_inst, uint32_t address);
 
 #endif // MIPS_DECODE
