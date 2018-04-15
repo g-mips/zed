@@ -17,11 +17,11 @@ $(BUILD_DIR):
 		mkdir $(BUILD_DIR); \
 	fi
 
-$(BUILD_DIR)main.o: $(SRC_DIR)main.c
-	$(CC) $(CFLAGS) $? -c -o $@
+$(BUILD_DIR)main.o: $(SRC_DIR)main.c $(INCLUDE_DIR)mips_decode.h $(INCLUDE_DIR)mips_ops.h
+	$(CC) $(CFLAGS) $< -c -o $@
 
-$(BUILD_DIR)mips_decode.o: $(SRC_DIR)mips_decode.c
-	$(CC) $(CFLAGS) $? -c -o $@
+$(BUILD_DIR)mips_decode.o: $(SRC_DIR)mips_decode.c $(INCLUDE_DIR)mips_decode.h $(INCLUDE_DIR)mips_ops.h
+	$(CC) $(CFLAGS) $< -c -o $@
 
 clean:
 	rm -f $(BUILD_DIR)*
