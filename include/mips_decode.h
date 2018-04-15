@@ -36,7 +36,7 @@
 #define RD_GET(inst) GET_BITS(inst, RD_BITS, RD_OFFSET)
 #define SHAMT_GET(inst) GET_BITS(inst, SHAMT_BITS, SHAMT_OFFSET)
 #define FUNCT_GET(inst) GET_BITS(inst, FUNCT_BITS, FUNCT_OFFSET)
-#define IMM_GET(inst) GET_BITS(inst, IMM_BITS, IMM_OFFSET)
+#define IMM_GET(inst) (int16_t)GET_BITS(inst, IMM_BITS, IMM_OFFSET)
 #define TARGET_GET(inst) GET_BITS(inst, TARGET_BITS, TARGET_OFFSET)
 
 // Register Zero
@@ -105,6 +105,10 @@ enum instruction_type {
     UNSUPPORTED
 };
 
+// R -- opcode(6) :: 31-26, rs(5) :: 25-21, rt(5) :: 20-16, rd(5) :: 15-11,
+//      shamt(5) :: 10-6, funct(6) :: 5-0
+// I -- opcode(6) :: 31-26, rs(5) :: 25-21, rt(5) :: 20-16, imm(16) :: 15-0
+// J -- opcode(6) :: 31-26, address(26) :: 25-0
 struct mips_inst {
     uint32_t address;
     uint32_t raw_inst;
