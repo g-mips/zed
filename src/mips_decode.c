@@ -90,6 +90,8 @@ static char * _mips_decode_get_op_str(uint8_t op)
         return ADD_STR;
     case ANDI:
         return ANDI_STR;
+    case BLTZ:
+        return BLTZ_STR;
     case BNE:
         return BNE_STR;
     case LW:
@@ -114,7 +116,7 @@ static uint8_t _mips_decode_get_opcode(uint32_t inst)
         return RT_GET(inst);
     case COP0:
     case COP1:
-        return 0; // Unimplemented
+        return INV_OP; // Unimplemented
     default:
         return OP_GET(inst);
     }
@@ -130,46 +132,62 @@ static void _mips_decode_set_inst_format(struct mips_inst *inst)
 
     char temp_string[MAX_INST_LENGTH] = "";
 
-    switch (inst->opcode)
+    switch (OP_GET(inst->raw_inst))
     {
-        // Register instruction format 1
-    case ADD:
-    case XOR:
-        snprintf(temp_string, MAX_INST_LENGTH, "0x%012X : %s %s, %s, %s",
-                 inst->address, GET_OP_STR(inst->opcode),
-                 GET_REG_STR(RD_GET(inst->raw_inst)),
-                 GET_REG_STR(RS_GET(inst->raw_inst)),
-                 GET_REG_STR(RT_GET(inst->raw_inst)));
-
-        memset(inst->inst_format, '\0', MAX_INST_LENGTH);
-        strncpy(inst->inst_format, temp_string, strlen(temp_string));
+    case SPECIAL:
+        switch (inst->opcode)
+        {
+            // Register instruction format 1
+        case ADD:
+        case XOR:
+            snprintf(temp_string, MAX_INST_LENGTH, "0x%012X : %08X : %s %s, %s, %s",
+                     inst->address, inst->raw_inst, GET_OP_STR(inst->opcode),
+                     GET_REG_STR(RD_GET(inst->raw_inst)),
+                     GET_REG_STR(RS_GET(inst->raw_inst)),
+                     GET_REG_STR(RT_GET(inst->raw_inst)));
+            break;
+        }
         break;
-        // Immediate instruction format 1
-    case SW:
-    case LW:
-        snprintf(temp_string, MAX_INST_LENGTH, "0x%012X : %s %s, %d(%s)",
-                 inst->address, GET_OP_STR(inst->opcode),
-                 GET_REG_STR(RT_GET(inst->raw_inst)), IMM_GET(inst->raw_inst),
-                 GET_REG_STR(RS_GET(inst->raw_inst)));
-
-        memset(inst->inst_format, '\0', MAX_INST_LENGTH);
-        strncpy(inst->inst_format, temp_string, strlen(temp_string));
+    case COP0:
+    case COP1:
         break;
-        // Immediate instruction format 2
-    case ADDI:
-    case ANDI:
-    case BNE:
-        snprintf(temp_string, MAX_INST_LENGTH, "0x%012X : %s %s, %s, %d",
-                 inst->address, GET_OP_STR(inst->opcode),
-                 GET_REG_STR(RT_GET(inst->raw_inst)),
-                 GET_REG_STR(RS_GET(inst->raw_inst)), IMM_GET(inst->raw_inst));
-
-        memset(inst->inst_format, '\0', MAX_INST_LENGTH);
-        strncpy(inst->inst_format, temp_string, strlen(temp_string));
+    case REGIMM:
+        switch (inst->opcode)
+        {
+            // Immediate instruction format 3
+        case BLTZ:
+            snprintf(temp_string, MAX_INST_LENGTH, "0x%012X : %08X : %s %s, %d",
+                     inst->address, inst->raw_inst, GET_OP_STR(inst->opcode),
+                     GET_REG_STR(RS_GET(inst->raw_inst)), IMM_GET(inst->raw_inst));
+            break;
+        }
         break;
     default:
+        switch (inst->opcode)
+        {
+            // Immediate instruction format 1
+        case SW:
+        case LW:
+            snprintf(temp_string, MAX_INST_LENGTH, "0x%012X : %08X : %s %s, %d(%s)",
+                     inst->address, inst->raw_inst, GET_OP_STR(inst->opcode),
+                     GET_REG_STR(RT_GET(inst->raw_inst)), IMM_GET(inst->raw_inst),
+                     GET_REG_STR(RS_GET(inst->raw_inst)));
+            break;
+            // Immediate instruction format 2
+        case ADDI:
+        case ANDI:
+        case BNE:
+            snprintf(temp_string, MAX_INST_LENGTH, "0x%012X : %08X : %s %s, %s, %d",
+                     inst->address, inst->raw_inst, GET_OP_STR(inst->opcode),
+                     GET_REG_STR(RT_GET(inst->raw_inst)),
+                     GET_REG_STR(RS_GET(inst->raw_inst)), IMM_GET(inst->raw_inst));
+            break;
+        }
         break;
     }
+
+    memset(inst->inst_format, '\0', MAX_INST_LENGTH);
+    strncpy(inst->inst_format, temp_string, strlen(temp_string));
 }
 #define INST_FORMAT_SET(inst) _mips_decode_set_inst_format(inst)
 
@@ -183,7 +201,7 @@ struct mips_inst mips_decode_mips_inst_new(uint32_t raw_inst, uint32_t address)
     INST_FORMAT_SET(&inst);
     inst.valid = true;
 
-    if (inst.opcode == 0 || strcmp(inst.inst_format, "") == 0)
+    if (inst.opcode == INV_OP || strcmp(inst.inst_format, "") == 0)
     {
         inst.valid = false;
     }

@@ -1,6 +1,8 @@
 #ifndef MIPS_OPS
 #define MIPS_OPS
 
+#define INV_OP  0x40
+
 /********** Main CPU Instruction **********/
 /**** ENCODED BY OP ****/
 // Says thats opcode is define elsewhere
@@ -72,7 +74,7 @@
 #define SDC2  0x3E // Store Doubleword To Coprocessor 2
 #define SD    0x3F
 
-/**** ENCODED BY FUNCT (OP == 000000) ****/
+/**** ENCODED BY FUNCT (OP == SPECIAL) ****/
 #define ADD  0x20  // Add Word
 #define ADDU 0x21
 #define SUB  0x22
@@ -82,6 +84,8 @@
 #define XOR  0x26  // Exclusive OR Immediate
 #define NOR  0x27
 
+/**** ENCODED BY RT (OP == REGIMM) ****/
+#define BLTZ 0x00
 /**** INSTRUCTION STRINGS ****/
 #define ADDI_STR "addi"
 #define ANDI_STR "andi"
@@ -90,5 +94,6 @@
 #define ADD_STR  "add"
 #define XOR_STR  "xor"
 #define BNE_STR  "bne"
+#define BLTZ_STR "bltz"
 
 #endif // MIPS_OPS
